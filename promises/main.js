@@ -1,55 +1,48 @@
+// http://exploringjs.com/es6/ch_promises.html
+
 'use strict';
 
-const express = require('express');
-const app = express();
-const bodyParser = require('body-parser');
 const util = require('util');
 
-app.use(bodyParser.urlencoded({ extended: false }));
-
 const validateParams = (params) => {
+  console.log("validating params", util.inspect(params))
   return new Promise((resolve, reject) => {
-    console.log(`validating params ${util.inspect(params)}`);
-    resolve();
+    resolve(params.id)
   });
 }
 
-const searchDatabase = (req) => {
+const searchDatabase = (id) => {
+  console.log("searching database for id", id);
   return new Promise((resolve, reject) => {
-    console.log('got id 1 from database');
-    reject("error");
+    resolve({
+      id: id,
+      name: 'john'
+    })
   });
 }
 
-const processUser = (id) => {
+const printResult = (user) => {
+  console.log(`The user: ${util.inspect(user)}`);
+}
+
+const requestService = (user) => {
+  console.log(`requesting more data fom user: ${util.inspect(user)}`);
   return new Promise((resolve, reject) => {
-    console.log(`processing user with id ${id}`);
-    resolve({ name: 'john', money: 12345 });
+    user.money = 1500;
+    resolve(user);
   });
 }
 
-const sendResult = (res, user) => {
-  return new Promise((resolve, reject) => {
-    console.log(`sending result for user ${util.inspect(user)}`);
-    res.end(JSON.stringify(user))
-    resolve();
-  });
+const handleErrors = (err) => {
+  console.log(`Error detected: ${err}`);
 }
 
-const handleError = (err, res) => {
-  res.end(JSON.stringify(err))
+const params = {
+  id: 42
 }
 
-const loginRequest = (req, res, next) => {
-  validateParams(req.params)
-    .then(searchDatabase(req))
-    .then(id => processUser(id))
-    .then(user => sendResult(res, user))
-    //.catch(err => handleError(err, res));
-    .catch(function (err) { console.log("aaaaaaaaaas") });
-}
-
-app.get('/user/:id', loginRequest);
-
-const port = 3000;
-app.listen(port, console.log(`listening on port ${port}`));
+validateParams(params)
+  .then(searchDatabase)
+  .then(user => requestService(user))
+  .then(user => printResult(user))
+  .catch(handleErrors)
