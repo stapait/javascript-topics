@@ -1,7 +1,3 @@
-// http://exploringjs.com/es6/ch_promises.html
-
-'use strict';
-
 const util = require('util');
 
 const validateParams = (params, callback) => {
